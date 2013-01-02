@@ -1,6 +1,6 @@
-# Mongoid::Silo
+# MongoidSilo
 
-Mongoid Silo creates and transparently manages static representations of a model - e.g. for creating Feeds or other diverse datastructures.
+MongoidSilo creates and transparently manages static representations of a model - e.g. for creating Feeds or other diverse datastructures.
 
 It's pretty opinionated, and thus must be awesome. It requires the latest Mongoid and Sidekiq, mainly because they are both awesome, secondly because it uses them.
 
@@ -9,7 +9,7 @@ It's pretty opinionated, and thus must be awesome. It requires the latest Mongoi
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'mongoid-silo'
+gem 'mongoid_silo'
 ```
 
 And then execute:
@@ -18,7 +18,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install mongoid-silo
+    $ gem install mongoid_silo
 
 ## Usage
 
