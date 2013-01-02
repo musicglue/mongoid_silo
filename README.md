@@ -25,14 +25,13 @@ Or install it yourself as:
 Include ```Mongoid::Silo``` in your model, and then declare your silos.
 
 ```ruby
-# The default usage creates a "default" silo, accessable through instance#default_silo that will call an instance#to_silo method to populate itself on save.
+# The default usage creates a "default" silo, accessable through instance#default_silo that will call
+# an instance#to_silo method to populate itself on save.
 silo
 
 # Or you can specify the silo name and the method that will be called to populate it, like so...
 silo :feed, :make_my_feed
 ```
-
-TODO: Write usage instructions here
 
 ## Contributing
 
