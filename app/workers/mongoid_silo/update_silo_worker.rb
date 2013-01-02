@@ -16,9 +16,9 @@ module MongoidSilo
     def update_silo name, method
       puts "[SILO] Creating or Updating Silo for #{@item_class}::::#{@item_id}"
       @item = @item_class.classify.constantize.send(:find, @item_id)
-      @silo = Silo.where(item_class: @item_class, item_id: @item_id).first
+      @silo = Silo.where(item_class: @item_class, item_id: @item_id, silo_type: name).first
       if @silo
-        @silo.set(:bag, @item.to_silo)
+        @silo.set(:bag, @item.send(method))
       else
         @silo = Silo.create(item_class: @item_class, item_id: @item_id, bag: @item.send(method), silo_type: name)
       end
