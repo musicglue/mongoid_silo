@@ -2,7 +2,7 @@
 
 Mongoid Silo creates and transparently manages static representations of a model - e.g. for creating Feeds or other diverse datastructures.
 
-It's pretty opinionated, and thus must be awesome.
+It's pretty opinionated, and thus must be awesome. It requires the latest Mongoid and Sidekiq, mainly because they are both awesome, secondly because it uses them.
 
 ## Installation
 
