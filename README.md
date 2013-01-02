@@ -8,7 +8,9 @@ It's pretty opinionated, and thus must be awesome.
 
 Add this line to your application's Gemfile:
 
-    gem 'mongoid-silo'
+```ruby
+gem 'mongoid-silo'
+```
 
 And then execute:
 
@@ -19,6 +21,16 @@ Or install it yourself as:
     $ gem install mongoid-silo
 
 ## Usage
+
+Include ```Mongoid::Silo``` in your model, and then declare your silos.
+
+```ruby
+# The default usage creates a "default" silo, accessable through instance#default_silo that will call an instance#to_silo method to populate itself on save.
+silo
+
+# Or you can specify the silo name and the method that will be called to populate it, like so...
+silo :feed, :make_my_feed
+```
 
 TODO: Write usage instructions here
 
