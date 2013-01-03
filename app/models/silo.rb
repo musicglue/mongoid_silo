@@ -14,7 +14,7 @@ class Silo
   index silo_type: 1
 
   def to_json
-    @json ||= Multijson.encode bag
+    @json ||= MultiJson.encode bag
   end
 
   class << self
