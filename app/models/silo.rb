@@ -21,5 +21,9 @@ class Silo
     def for_id_and_class_with_name id, class_name, silo_name
       where(item_class: class_name, item_id: id, silo_type: silo_name).first
     end
+
+    def for_id_and_name_with_no_class id, silo_name
+      where(item_id: id, silo_type: name).first
+    end
   end
 end
