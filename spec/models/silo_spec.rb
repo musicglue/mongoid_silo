@@ -3,25 +3,27 @@ require 'spec_helper'
 describe Silo do
 
   context 'simple silos' do
-    subject { create(:project) }
+    before do
+      @project = create(:project)
+    end
 
     it "should persist a Silo" do
-      subject.should be_persisted
+      @project.should be_persisted
       Silo.count.should eq(1)
     end
 
     it "should contain the name of the project" do
-      subject.default_silo.should eq({"name" => subject.name})
+      @project.default_silo.should eq({"name" => @project.name})
     end
 
     it "should update the name if the name changes" do
-      subject.name = Faker::Name.name
-      subject.save
-      subject.default_silo["name"].should eq(subject.name)
+      @project.name = Faker::Name.name
+      @project.save
+      @project.default_silo["name"].should eq(@project.name)
     end
 
     it "should delete the silo if the project is deleted" do
-      subject.destroy
+      @project.destroy
       Silo.count.should eq(0)
     end
 

@@ -27,12 +27,28 @@ Include ```Mongoid::Silo``` in your model, and then declare your silos.
 
 ```ruby
 # The default usage creates a "default" silo, accessable through instance#default_silo that will call
-# an instance#to_silo method to populate itself on save.
+# down to the default 'GrainBelt' generator. This will simply store all the attributes on your model,
+# so you almost certainly don't want this. See below for more details.
 silo
 
-# Or you can specify the silo name and the method that will be called to populate it, like so...
-silo :feed, :make_my_feed
+# Or you can specify the silo name and the class that will be called to populate it, like so...
+silo :feed, generator: "MyGeneratorClass"
+
+# To create a custom generator class, simply inherit from MongoidSilo::GrainBelt and override the
+# generate method.
+class MyGeneratorClass < MongoidSilo::GrainBelt
+  def generate
+    {
+      name: name,
+      age: age,
+      dingbats: true
+    }
+  end
+end
 ```
+The generator class gets passed the instance of your model when the Silo is generated, and it exposes
+your methods and attributes on that instance. Otherwise, you have access to the instance through the ```object``` accessor.
+
 
 ## Contributing
 
