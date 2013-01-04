@@ -1,8 +1,8 @@
 require "mongoid_silo/version"
 require 'mongoid_silo/railtie' if defined?(Rails)
 require 'mongoid/silo'
-require_relative '../app/models/silo'
-require_relative '../app/workers/mongoid_silo/update_silo_worker'
+
+Dir['./app/**/*.rb'].each{ |file| require file }
 
 module MongoidSilo
 end

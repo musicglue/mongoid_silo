@@ -7,6 +7,7 @@ end
 
 guard :rspec do
   watch(%r{^app/models/(.+)\.rb$}) { |m| "spec/models/#{m[1]}_spec.rb" }
+  watch(%r{^app/workers/(.+)\.rb$}) { "spec" }
   watch(%r{^spec/.+_spec\.rb$})
   watch('spec/spec_helper.rb')  { "spec" }
 end

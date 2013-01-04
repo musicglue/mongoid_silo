@@ -6,12 +6,6 @@ class ComplexProject
   field :due_date, type: DateTime
 
 
-  silo :complex, :make_complex_silo
+  silo :complex, silovator: "MakeComplexGrainBelt"
 
-  def make_complex_silo
-    {
-      name: name,
-      due_date: due_date
-    }
-  end
 end
