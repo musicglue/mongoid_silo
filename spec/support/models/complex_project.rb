@@ -6,6 +6,6 @@ class ComplexProject
   field :due_date, type: DateTime
 
 
-  silo :complex, silovator: "MakeComplexGrainBelt"
+  silo :complex, generator: "MakeComplexGrainBelt"
 
 end

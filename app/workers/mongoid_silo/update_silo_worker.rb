@@ -5,18 +5,18 @@ module MongoidSilo
   class UpdateSiloWorker
     include Sidekiq::Worker
 
-    def perform(item_id, item_class, name, mode="save", silovator=nil)
-      @item_id, @item_class, @silovator = item_id, item_class, silovator
+    def perform(item_id, item_class, name, mode="save", generator=nil)
+      @item_id, @item_class, @generator = item_id, item_class, generator
 
-      mode.to_s == "save" ? update_silo(name, silovator) : destroy_silo(name)
+      mode.to_s == "save" ? update_silo(name, generator) : destroy_silo(name)
     end
 
 
     private
-    def update_silo name, silovator
+    def update_silo name, generator
       @item = item_class.send(:find, @item_id)
       @silo = Silo.where(item_class: @item_class, item_id: @item_id, silo_type: name).first
-      @content = silovator_class.send(:new, @item).generate
+      @content = generator_class.send(:new, @item).generate
       if @silo
         @silo.set(:bag, @content)
       else
@@ -41,9 +41,9 @@ module MongoidSilo
     end
 
 
-    def silovator_class
+    def generator_class
       cl = nil
-      @silovator.split("::").inject(nil) do |parent, identifier|
+      @generator.split("::").inject(nil) do |parent, identifier|
         parent ||= Kernel
         cl = parent.const_get(identifier)
       end

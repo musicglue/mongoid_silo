@@ -6,13 +6,13 @@ module Mongoid
 
     module ClassMethods
       def silo name=:default, opts={}
-        opts[:silovator] ||= "MongoidSilo::GrainBelt"
+        opts[:generator] ||= "MongoidSilo::GrainBelt"
         define_method "#{name}_silo" do
           from_silo name
         end
 
         set_callback :save, :after do
-          update_silo name, opts[:silovator]
+          update_silo name, opts[:generator]
         end
 
         set_callback :destroy, :after do
@@ -21,8 +21,8 @@ module Mongoid
       end
     end
 
-    def update_silo name, silovator
-      MongoidSilo::UpdateSiloWorker.perform_async(self.id.to_s, self.class.to_s, name, :save, silovator)
+    def update_silo name, generator
+      MongoidSilo::UpdateSiloWorker.perform_async(self.id.to_s, self.class.to_s, name, :save, generator)
     end
 
     def destroy_silo name

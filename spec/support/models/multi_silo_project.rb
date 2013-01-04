@@ -6,7 +6,7 @@ class MultiSiloProject
   field :city, type: String
   field :country, type: String
 
-  silo :name, silovator: "MakeNameGrainBelt"
-  silo :location, silovator: "MakeLocationGrainBelt"
+  silo :name, generator: "MakeNameGrainBelt"
+  silo :location, generator: "MakeLocationGrainBelt"
 
 end
