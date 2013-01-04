@@ -1,4 +1,5 @@
 --color
---format Fuubar
+--require rspec/instafail
+--format RSpec::Instafail
 --fail-fast
 --drb

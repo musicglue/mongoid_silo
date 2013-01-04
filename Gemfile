@@ -14,10 +14,10 @@ end
 
 group :development do
   gem 'guard'
+  gem 'terminal-notifier-guard'
   gem 'guard-rspec'
   gem 'guard-spork'
   gem 'guard-bundler'
-  gem 'terminal-notifier-guard'
   gem 'rb-inotify', :require => false
   gem 'rb-fsevent', :require => false
   gem 'rb-fchange', :require => false

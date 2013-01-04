@@ -4,7 +4,6 @@ require 'spork'
 require 'guard/rspec'
 require 'rspec'
 
-
 Spork.prefork do
   require 'mongoid_silo'
   require 'factory_girl'
@@ -15,6 +14,9 @@ Spork.prefork do
   # if you change any configuration or code from libraries loaded here, you'll
   # need to restart spork for it take effect.
   FactoryGirl.find_definitions
+
+  Mongoid.load!(File.expand_path("../mongoid.yml", __FILE__), :test)
+
 
 
   RSpec.configure do |config|
@@ -30,15 +32,10 @@ Spork.prefork do
     end
   end
 
-  Mongoid.load!(File.expand_path("../mongoid.yml", __FILE__), :test)
-
-  require 'support/models/project'
-  require 'support/models/complex_project'
+  Dir['./spec/support/**/*.rb'].each{ |file| require file }
 end
 
 Spork.each_run do
-  # This code will be run each time you run your specs.
-
 end
 
 
