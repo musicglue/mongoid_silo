@@ -5,13 +5,14 @@ module Mongoid
     extend ActiveSupport::Concern
 
     module ClassMethods
-      def silo name=:default, method=:to_silo
+      def silo name=:default, opts={}
+        opts[:generator] ||= "MongoidSilo::GrainBelt"
         define_method "#{name}_silo" do
           from_silo name
         end
 
         set_callback :save, :after do
-          update_silo name, method
+          update_silo name, opts[:generator]
         end
 
         set_callback :destroy, :after do
@@ -20,16 +21,12 @@ module Mongoid
       end
     end
 
-    def update_silo name, method
-      MongoidSilo::UpdateSiloWorker.perform_async(self.id.to_s, self.class.to_s, name, :save, method)
+    def update_silo name, generator
+      MongoidSilo::UpdateSiloWorker.perform_async(self.id.to_s, self.class.to_s, name, :save, generator)
     end
 
     def destroy_silo name
       MongoidSilo::UpdateSiloWorker.perform_async(self.id.to_s, self.class.to_s, name, :destroy)
-    end
-
-    def to_silo #OVERWRITE THIS IN YOUR MODELS, BITCHES
-      {}
     end
 
     def from_silo name="default"

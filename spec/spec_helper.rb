@@ -36,6 +36,7 @@ Spork.prefork do
 end
 
 Spork.each_run do
+  Dir['./app/**/*.rb'].each { |file| require file }
 end
 
 
