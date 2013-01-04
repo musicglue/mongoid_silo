@@ -14,7 +14,6 @@ module MongoidSilo
 
     private
     def update_silo name, method
-      puts "[SILO] Creating or Updating Silo for #{@item_class}::::#{@item_id}"
       @item = @item_class.classify.constantize.send(:find, @item_id)
       @silo = Silo.where(item_class: @item_class, item_id: @item_id, silo_type: name).first
       if @silo
@@ -25,7 +24,6 @@ module MongoidSilo
     end
 
     def destroy_silo name
-      puts "[SILO] Destroying Silo for #{@item_class}::::#{@item_id}"
       @silo = Silo.where(item_class: @item_class, item_id: @item_id, silo_type: name).first
       if @silo
         @silo.destroy

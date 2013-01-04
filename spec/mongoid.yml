@@ -1,0 +1,9 @@
+test:
+  sessions:
+    default:
+      hosts:
+        - localhost:27017
+      database: mongoid_silo-test
+      options:
+        identity_map_enabled: false
+        safe: false
