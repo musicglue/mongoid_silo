@@ -12,11 +12,9 @@ module MongoidSilo
     end
 
     def generate
-      out = {}
-      object.attribute_names.each do |attribute|
+      object.attribute_names.each_with_object({}) do |attribute, out|
         out[attribute] = object.send(attribute) unless ["_type", "_id"].include?(attribute)
       end
-      out
     end
   end
 end
