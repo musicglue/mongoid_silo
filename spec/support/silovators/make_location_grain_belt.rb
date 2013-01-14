@@ -2,7 +2,7 @@ class MakeLocationGrainBelt < MongoidSilo::GrainBelt
   def generate
     {
       city: city,
-      country: country
+      county: county
     }
   end
 end

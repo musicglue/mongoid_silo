@@ -5,9 +5,18 @@ guard :bundler do
   watch("Gemfile")
 end
 
-guard :rspec do
+guard :spork, :rspec_env => { 'RAILS_ENV' => 'test', 'RACK_ENV' => 'test' } do
+  watch('Gemfile')
+  watch('Gemfile.lock')
+  watch('spec/spec_helper.rb') { :rspec }
+  watch(%r{spec/support/}) { :spork }
+end
+
+guard :rspec, cli: "--drb --color --fail-fast" do
   watch(%r{^app/models/(.+)\.rb$}) { |m| "spec/models/#{m[1]}_spec.rb" }
   watch(%r{^app/workers/(.+)\.rb$}) { "spec" }
   watch(%r{^spec/.+_spec\.rb$})
   watch('spec/spec_helper.rb')  { "spec" }
 end
+
+

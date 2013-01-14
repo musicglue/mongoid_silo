@@ -83,6 +83,49 @@ describe Silo do
     end
   end
 
+  context "Block based constructors:" do
+
+    subject(:block_project) { create(:block_project) }
+
+    it "defines an accessor based on the declared silo name" do
+      block_project.should respond_to(:block_silo)
+    end
+
+    it "should create the required silo" do
+      block_project.block_silo["name"].should eq(block_project.name)
+    end
+
+    it "updates the parent when a child is saved" do
+      project_item = create(:block_project_item, block_project_id: block_project.id)
+      block_project.block_silo["items"][0]["name"].should eq(project_item.name)
+    end
+
+    it "updates the parent when a child is updated" do
+      project_item = create(:block_project_item, block_project_id: block_project.id)
+      project_item.name = Faker::Name.name
+      project_item.save
+      block_project.block_silo["items"][0]["name"].should eq(project_item.name)
+    end
+
+    it "updates when there are many children", focus: true do
+      project_item1 = create(:block_project_item, block_project_id: block_project.id)
+      project_item2 = create(:block_project_item, block_project_id: block_project.id)
+      project_item3 = create(:block_project_item, block_project_id: block_project.id)
+      block_project.block_silo["items"].length.should eq(3)
+
+      project_item2.name = Faker::Name.name
+      project_item2.save
+      puts project_item2._save_callbacks.inspect
+      block_project.reload
+      puts block_project.block_silo.inspect
+
+      block_project.block_silo["items"].map{|i| i["name"]}.sort.should eq(
+        [project_item1.name, project_item2.name, project_item3.name].sort
+      ) 
+    end
+
+  end
+
   context "Multiple silo constructors:" do
     before do
       @multi_silo_project = create(:multi_silo_project)
@@ -102,14 +145,14 @@ describe Silo do
     it "Correctly populates the Location silo" do
       _expectation = {
         "city" => @multi_silo_project.city,
-        "country" => @multi_silo_project.country
+        "county" => @multi_silo_project.county
       }
       @multi_silo_project.location_silo.should eq(_expectation)
     end
 
     it "Correctly updates both silos" do
       @multi_silo_project.city    = Faker::Address.city
-      @multi_silo_project.country = Faker::Address.country
+      @multi_silo_project.county  = Faker::AddressUK.county
       @multi_silo_project.name    = Faker::Name.name
       @multi_silo_project.save
       _name_silo_expectation = {
@@ -117,7 +160,7 @@ describe Silo do
       }
       _location_silo_expectation = {
         "city" => @multi_silo_project.city,
-        "country" => @multi_silo_project.country
+        "county" => @multi_silo_project.county
       }
       @multi_silo_project.name_silo.should eq(_name_silo_expectation)
       @multi_silo_project.location_silo.should eq(_location_silo_expectation)

@@ -5,15 +5,16 @@ require 'guard/rspec'
 require 'rspec'
 
 Spork.prefork do
-  require 'mongoid_silo'
+  require 'sidekiq'
+  require 'mongoid'
   require 'factory_girl'
   require 'database_cleaner'
-  require 'faker'
+  require 'ffaker'
   require 'sidekiq/testing/inline'
   # Loading more in this block will cause your tests to run faster. However,
   # if you change any configuration or code from libraries loaded here, you'll
   # need to restart spork for it take effect.
-  FactoryGirl.find_definitions
+  
 
   Mongoid.load!(File.expand_path("../mongoid.yml", __FILE__), :test)
 
@@ -21,6 +22,9 @@ Spork.prefork do
 
   RSpec.configure do |config|
     config.include FactoryGirl::Syntax::Methods
+    config.filter_run :focus => true  
+    config.run_all_when_everything_filtered = true
+    config.backtrace_clean_patterns << /gems\//
 
     config.before(:suite) do
       DatabaseCleaner.strategy = :truncation
@@ -32,11 +36,14 @@ Spork.prefork do
     end
   end
 
-  Dir['./spec/support/**/*.rb'].each{ |file| require file }
+  
 end
 
 Spork.each_run do
-  Dir['./app/**/*.rb'].each { |file| require file }
+  require 'mongoid_silo'
+  FactoryGirl.find_definitions
+  # Dir['./app/**/*.rb'].each { |file| require file }
+  Dir['./spec/support/**/*.rb'].each{ |file| require file }
 end
 
 

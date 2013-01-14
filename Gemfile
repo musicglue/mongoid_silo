@@ -8,7 +8,7 @@ group :test do
   gem 'factory_girl'
   gem 'database_cleaner'
   gem 'fuubar'
-  gem 'faker'
+  gem 'ffaker'
   gem 'spork'
 end
 

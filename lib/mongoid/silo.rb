@@ -6,7 +6,27 @@ module Mongoid
 
     module ClassMethods
       def silo name=:default, opts={}
-        opts[:generator] ||= "MongoidSilo::GrainBelt"
+        opts = if block_given?
+          opts = ActiveSupport::OrderedOptions.new
+          opts.dependents = []
+          yield(opts)
+          opts.generator ||= "MongoidSilo::GrainBelt"
+          opts
+        else
+          opts[:generator] ||= "MongoidSilo::GrainBelt"
+          opts[:dependents] = []
+          opts
+        end
+        setup_own_silo name, opts
+        if opts[:dependents].length != 0
+          setup_listeners name, opts[:dependents], opts[:generator]
+        end
+      end
+
+
+
+      protected
+      def setup_own_silo name, opts
         define_method "#{name}_silo" do
           from_silo name
         end
@@ -17,6 +37,40 @@ module Mongoid
 
         set_callback :destroy, :after do
           destroy_silo name
+        end
+      end
+
+      def setup_listeners name, dependents, generator
+        registry = dependents.each_with_object([]) do |dep, arr|
+          next unless dep[:class_name]
+          out = {class_name: dep[:class_name], parent_class: self.to_s, silo_name: name.to_s, generator: generator}
+          if dep[:foreign_key]
+            out[:foreign_key] = dep[:foreign_key]
+          else
+            out[:foreign_key] = self.to_s.underscore.singularize + "_id"
+          end
+          arr << out
+        end
+
+
+        registry.each do |key|
+          puts key.inspect
+          key[:class_name].classify.constantize.module_eval <<-EOS, __FILE__, __LINE__+1
+            set_callback :save, :after do
+              @ident = key[:foreign_key].to_sym
+              @parent = key[:parent_class]
+              @silo_name = key[:silo_name]
+              @generator = key[:generator]
+              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(@ident), "#{@parent}", "#{@silo_name}", :save, "#{@generator}")
+            end
+
+            set_callback :destroy, :after do
+              ident = key[:foreign_key].to_sym
+              parent = key[:parent_class]
+              silo_name = key[:silo_name]
+              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(@ident), "#{@parent}", "#{@silo_name}", :destroy)
+            end
+          EOS
         end
       end
     end
