@@ -16,5 +16,6 @@ module MongoidSilo
         out[attribute] = object.send(attribute) unless ["_type", "_id"].include?(attribute)
       end
     end
+    
   end
 end
