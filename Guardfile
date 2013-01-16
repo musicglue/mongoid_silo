@@ -13,10 +13,11 @@ guard :spork, :rspec_env => { 'RAILS_ENV' => 'test', 'RACK_ENV' => 'test' } do
 end
 
 guard :rspec, cli: "--drb --color --fail-fast" do
-  watch(%r{^app/models/(.+)\.rb$}) { |m| "spec/models/#{m[1]}_spec.rb" }
+  watch(%r{^app/models/(.+)\.rb$})  { |m| "spec/models/#{m[1]}_spec.rb" }
   watch(%r{^app/workers/(.+)\.rb$}) { "spec" }
+  watch(%r{^lib/(.+)\.rb$})         { |m| "spec/models/silo_spec.rb" }
   watch(%r{^spec/.+_spec\.rb$})
-  watch('spec/spec_helper.rb')  { "spec" }
+  watch('spec/spec_helper.rb')      { "spec" }
 end
 
 

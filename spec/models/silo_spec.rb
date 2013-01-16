@@ -107,19 +107,21 @@ describe Silo do
       block_project.block_silo["items"][0]["name"].should eq(project_item.name)
     end
 
-    it "updates when there are many children", focus: true do
+    it "updates when there are many children" do
       project_item1 = create(:block_project_item, block_project_id: block_project.id)
       project_item2 = create(:block_project_item, block_project_id: block_project.id)
       project_item3 = create(:block_project_item, block_project_id: block_project.id)
       block_project.block_silo["items"].length.should eq(3)
 
+      puts "Name was: " + project_item2.name
+      
       project_item2.name = Faker::Name.name
       project_item2.save
+      
       puts project_item2._save_callbacks.inspect
-      block_project.reload
-      puts block_project.block_silo.inspect
+      bp = BlockProject.find block_project.id
 
-      block_project.block_silo["items"].map{|i| i["name"]}.sort.should eq(
+      bp.block_silo["items"].map{|i| i["name"]}.sort.should eq(
         [project_item1.name, project_item2.name, project_item3.name].sort
       ) 
     end

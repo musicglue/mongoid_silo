@@ -55,20 +55,15 @@ module Mongoid
 
         registry.each do |key|
           puts key.inspect
-          key[:class_name].classify.constantize.module_eval <<-EOS, __FILE__, __LINE__+1
+          key[:class_name].classify.constantize.class_eval <<-EOS, __FILE__, __LINE__+1
             set_callback :save, :after do
-              @ident = key[:foreign_key].to_sym
-              @parent = key[:parent_class]
-              @silo_name = key[:silo_name]
-              @generator = key[:generator]
-              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(@ident), "#{@parent}", "#{@silo_name}", :save, "#{@generator}")
+              ident = key[:foreign_key].to_sym
+              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(ident), "#{key[:parent_class]}", "#{key[:silo_name]}", :save, "#{key[:generator]}")
             end
 
             set_callback :destroy, :after do
               ident = key[:foreign_key].to_sym
-              parent = key[:parent_class]
-              silo_name = key[:silo_name]
-              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(@ident), "#{@parent}", "#{@silo_name}", :destroy)
+              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(ident), "#{key[:parent_class]}", "#{key[:silo_name]}", :destroy)
             end
           EOS
         end

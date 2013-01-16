@@ -7,7 +7,6 @@ module MongoidSilo
 
     def perform(item_id, item_class, name, mode="save", generator=nil)
       @item_id, @item_class, @generator = item_id, item_class, generator
-
       mode.to_s == "save" ? update_silo(name, generator) : destroy_silo(name)
     end
 
