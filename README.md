@@ -34,6 +34,12 @@ silo
 # Or you can specify the silo name and the class that will be called to populate it, like so...
 silo :feed, generator: "MyGeneratorClass"
 
+# You can now pass a block to the constructor, and declare child classes that will cause this silo to be updated:
+silo :feed do |config|
+  config.generator = "MyGeneratorClass"
+  config.dependents << {class_name: "OtherClass", foreign_key: "my_class_id"}
+end
+
 # To create a custom generator class, simply inherit from MongoidSilo::GrainBelt and override the
 # generate method.
 class MyGeneratorClass < MongoidSilo::GrainBelt
