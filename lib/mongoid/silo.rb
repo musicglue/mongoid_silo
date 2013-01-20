@@ -54,7 +54,6 @@ module Mongoid
 
 
         registry.each do |key|
-          puts key.inspect
           key[:class_name].classify.constantize.class_eval <<-EOS, __FILE__, __LINE__+1
             set_callback :save, :after do
               ident = key[:foreign_key].to_sym
