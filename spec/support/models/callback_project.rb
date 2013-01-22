@@ -8,13 +8,11 @@ class CallbackProject
     config.callback = :triggered
   end
   
-  def triggered
-    Proc.new{|x|
-      x.class.triggered
-    }
+  def triggered context
+    self.class.triggered
   end
   
-  def self.triggered
+  def self.triggered 
     true
   end
 end

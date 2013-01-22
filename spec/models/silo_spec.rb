@@ -172,7 +172,7 @@ describe Silo do
     end
   end
   
-  context "Callbacks", focus: true do
+  context "Callbacks" do
     subject(:project) { build(:callback_project) }
     
     it "should trigger a named callback" do

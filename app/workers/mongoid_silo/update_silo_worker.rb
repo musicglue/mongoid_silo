@@ -21,7 +21,7 @@ module MongoidSilo
       else
         @silo = Silo.create(item_class: @item_class, item_id: @item_id, bag: @content, silo_type: name)
       end
-      if @callback
+      unless @callback.nil? || @callback == ""
         @item.__send__(@callback, :updated)
       end
     end
@@ -31,7 +31,7 @@ module MongoidSilo
       if @silo
         @silo.destroy
       end
-      if @callback
+      unless @callback.nil? || @callback == ""
         @item.__send__(@callback, :destroyed)
       end
     end

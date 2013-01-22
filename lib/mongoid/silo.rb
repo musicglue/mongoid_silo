@@ -59,12 +59,12 @@ module Mongoid
           key[:class_name].classify.constantize.class_eval <<-EOS, __FILE__, __LINE__+1
             set_callback :save, :after do
               ident = key[:foreign_key].to_sym
-              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(ident), "#{key[:parent_class]}", "#{key[:silo_name]}", :save, "#{key[:generator]}", #{key[:callback]})
+              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(ident), "#{key[:parent_class]}", "#{key[:silo_name]}", :save, "#{key[:generator]}", "#{key[:callback]}")
             end
 
             set_callback :destroy, :after do
               ident = key[:foreign_key].to_sym
-              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(ident), "#{key[:parent_class]}", "#{key[:silo_name]}", :destroy, #{key[:callback]})
+              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(ident), "#{key[:parent_class]}", "#{key[:silo_name]}", :destroy, "#{key[:callback]}")
             end
           EOS
         end
