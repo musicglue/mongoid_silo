@@ -113,12 +113,10 @@ describe Silo do
       project_item3 = create(:block_project_item, block_project_id: block_project.id)
       block_project.block_silo["items"].length.should eq(3)
 
-      puts "Name was: " + project_item2.name
       
       project_item2.name = Faker::Name.name
       project_item2.save
       
-      puts project_item2._save_callbacks.inspect
       bp = BlockProject.find block_project.id
 
       bp.block_silo["items"].map{|i| i["name"]}.sort.should eq(
@@ -172,6 +170,17 @@ describe Silo do
       @multi_silo_project.destroy
       Silo.count.should eq(0)
     end
+  end
+  
+  context "Callbacks", focus: true do
+    subject(:project) { build(:callback_project) }
+    
+    it "should trigger a named callback" do
+      CallbackProject.should_receive(:triggered)
+      project.save 
+    end
+    
+    
   end
 
 end

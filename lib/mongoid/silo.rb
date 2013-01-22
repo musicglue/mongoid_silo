@@ -9,17 +9,19 @@ module Mongoid
         opts = if block_given?
           opts = ActiveSupport::OrderedOptions.new
           opts.dependents = []
+          opts.callback = nil
           yield(opts)
           opts.generator ||= "MongoidSilo::GrainBelt"
           opts
         else
           opts[:generator] ||= "MongoidSilo::GrainBelt"
           opts[:dependents] = []
+          opts[:callback] = nil
           opts
         end
         setup_own_silo name, opts
         if opts[:dependents].length != 0
-          setup_listeners name, opts[:dependents], opts[:generator]
+          setup_listeners name, opts[:dependents], opts[:generator], opts[:callback]
         end
       end
 
@@ -32,18 +34,18 @@ module Mongoid
         end
 
         set_callback :save, :after do
-          update_silo name, opts[:generator]
+          update_silo name, opts[:generator], opts[:callback]
         end
 
         set_callback :destroy, :after do
-          destroy_silo name
+          destroy_silo name, opts[:callback]
         end
       end
 
-      def setup_listeners name, dependents, generator
+      def setup_listeners name, dependents, generator, callback
         registry = dependents.each_with_object([]) do |dep, arr|
           next unless dep[:class_name]
-          out = {class_name: dep[:class_name], parent_class: self.to_s, silo_name: name.to_s, generator: generator}
+          out = {class_name: dep[:class_name], parent_class: self.to_s, silo_name: name.to_s, generator: generator, callback: callback}
           if dep[:foreign_key]
             out[:foreign_key] = dep[:foreign_key]
           else
@@ -57,24 +59,24 @@ module Mongoid
           key[:class_name].classify.constantize.class_eval <<-EOS, __FILE__, __LINE__+1
             set_callback :save, :after do
               ident = key[:foreign_key].to_sym
-              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(ident), "#{key[:parent_class]}", "#{key[:silo_name]}", :save, "#{key[:generator]}")
+              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(ident), "#{key[:parent_class]}", "#{key[:silo_name]}", :save, "#{key[:generator]}", #{key[:callback]})
             end
 
             set_callback :destroy, :after do
               ident = key[:foreign_key].to_sym
-              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(ident), "#{key[:parent_class]}", "#{key[:silo_name]}", :destroy)
+              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(ident), "#{key[:parent_class]}", "#{key[:silo_name]}", :destroy, #{key[:callback]})
             end
           EOS
         end
       end
     end
 
-    def update_silo name, generator
-      MongoidSilo::UpdateSiloWorker.perform_async(self.id.to_s, self.class.to_s, name, :save, generator)
+    def update_silo name, generator, callback
+      MongoidSilo::UpdateSiloWorker.perform_async(self.id.to_s, self.class.to_s, name, :save, generator, callback)
     end
 
-    def destroy_silo name
-      MongoidSilo::UpdateSiloWorker.perform_async(self.id.to_s, self.class.to_s, name, :destroy)
+    def destroy_silo name, callback
+      MongoidSilo::UpdateSiloWorker.perform_async(self.id.to_s, self.class.to_s, name, :destroy, callback)
     end
 
     def from_silo name="default"

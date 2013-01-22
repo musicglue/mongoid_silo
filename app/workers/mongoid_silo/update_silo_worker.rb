@@ -5,8 +5,8 @@ module MongoidSilo
   class UpdateSiloWorker
     include Sidekiq::Worker
 
-    def perform(item_id, item_class, name, mode="save", generator=nil)
-      @item_id, @item_class, @generator = item_id, item_class, generator
+    def perform(item_id, item_class, name, mode="save", generator=nil, callback=nil)
+      @item_id, @item_class, @generator, @callback = item_id, item_class, generator, callback
       mode.to_s == "save" ? update_silo(name, generator) : destroy_silo(name)
     end
 
@@ -21,12 +21,18 @@ module MongoidSilo
       else
         @silo = Silo.create(item_class: @item_class, item_id: @item_id, bag: @content, silo_type: name)
       end
+      if @callback
+        @item.__send__(@callback).call(@item, :updated)
+      end
     end
 
     def destroy_silo name
       @silo = Silo.where(item_class: @item_class, item_id: @item_id, silo_type: name).first
       if @silo
         @silo.destroy
+      end
+      if @callback
+        @item.__send__(@callback).call(@item, :destroyed)
       end
     end
 
