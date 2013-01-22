@@ -22,7 +22,7 @@ module MongoidSilo
         @silo = Silo.create(item_class: @item_class, item_id: @item_id, bag: @content, silo_type: name)
       end
       if @callback
-        @item.__send__(@callback).call(@item, :updated)
+        @item.__send__(@callback, :updated)
       end
     end
 
@@ -32,7 +32,7 @@ module MongoidSilo
         @silo.destroy
       end
       if @callback
-        @item.__send__(@callback).call(@item, :destroyed)
+        @item.__send__(@callback, :destroyed)
       end
     end
 
