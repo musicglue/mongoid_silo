@@ -3,12 +3,18 @@ module MongoidSilo
 
     attr_accessor :object
     
-    def initialize(object)
+    def initialize(object, version=nil)
       @object = object
+      @version = version
+      @genmeth = "generate"
     end
 
     def method_missing(meth, *args)
       object.send(meth)
+    end
+
+    def run
+      self.__send__(@genmeth)
     end
 
     def generate

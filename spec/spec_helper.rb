@@ -11,14 +11,8 @@ Spork.prefork do
   require 'database_cleaner'
   require 'ffaker'
   require 'sidekiq/testing/inline'
-  # Loading more in this block will cause your tests to run faster. However,
-  # if you change any configuration or code from libraries loaded here, you'll
-  # need to restart spork for it take effect.
-  
 
   Mongoid.load!(File.expand_path("../mongoid.yml", __FILE__), :test)
-
-
 
   RSpec.configure do |config|
     config.include FactoryGirl::Syntax::Methods
@@ -31,8 +25,13 @@ Spork.prefork do
       DatabaseCleaner.clean
     end
 
+    config.before(:each) do
+      DatabaseCleaner.start
+    end
+
     config.after(:each) do
       DatabaseCleaner.clean
+      DatabaseCleaner[:mongoid, {connection: :mongoid_silo_testing_2}].clean
     end
   end
 

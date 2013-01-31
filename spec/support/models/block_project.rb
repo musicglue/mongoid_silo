@@ -5,7 +5,8 @@ class BlockProject
 
   silo :block do |conf|
     conf.generator = "MakeBlockProjectGrainBelt"
-    conf.dependents << {class_name: "BlockProjectItem"}
+    conf.dependents << { class_name: "BlockProjectItem" }
+    conf.session = :default
   end
 
   field :name, type: String

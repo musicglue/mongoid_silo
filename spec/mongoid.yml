@@ -3,7 +3,14 @@ test:
     default:
       hosts:
         - localhost:27017
-      database: mongoid_silo-test
+      database: mongoid_silo_testing
+      options:
+        identity_map_enabled: false
+        safe: false
+    alternative:
+      hosts:
+        - localhost:27017
+      database: mongoid_silo-testing_2
       options:
         identity_map_enabled: false
         safe: false

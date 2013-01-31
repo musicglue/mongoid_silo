@@ -26,7 +26,6 @@ describe Silo do
       @project.destroy
       Silo.count.should eq(0)
     end
-
   end
 
   context 'Direct finders and methods:' do
@@ -179,8 +178,20 @@ describe Silo do
       CallbackProject.should_receive(:triggered)
       project.save 
     end
-    
-    
+  end
+
+  context "Other Collections and Sessions" do
+    subject(:project) { build :other_collection_project }
+
+    it "should persist its silo in another session" do
+      project.inspect
+      project.save
+      Silo.with(session: :alternative, collection: :dogs, database: :mongoid_silo_testing_2).count.should eq(1)
+    end
+  end
+
+  context "Versioning", focus: true do
+    subject(:project) { create(:versioned_project) }
   end
 
 end

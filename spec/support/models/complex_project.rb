@@ -6,6 +6,8 @@ class ComplexProject
   field :due_date, type: DateTime
 
 
-  silo :complex, generator: "MakeComplexGrainBelt"
+  silo :complex do |config|
+    config.generator = "MakeComplexGrainBelt"
+  end
 
 end

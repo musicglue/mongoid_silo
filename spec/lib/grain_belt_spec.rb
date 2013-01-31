@@ -4,7 +4,7 @@ describe MongoidSilo::GrainBelt do
   context "Instantiated with a simple model" do
 
     before do
-      @model = create(:project)
+      @model = build(:project)
       @silovator = MongoidSilo::GrainBelt.new(@model)
     end
 
