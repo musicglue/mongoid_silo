@@ -22,5 +22,5 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'activesupport', '~> 3.2.9'
   gem.add_dependency 'mongoid', '~> 3.0.16'
-  gem.add_dependency 'sidekiq', '~> 2.6.1'
+  gem.add_dependency 'sidekiq', '~> 2.7.0'
 end
