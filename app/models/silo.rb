@@ -19,12 +19,26 @@ class Silo
   end
 
   class << self
-    def for_id_and_class_with_name item_id, class_name, silo_name
-      where(item_class: class_name, item_id: item_id, silo_type: silo_name).first
+    def for_id_and_class_with_name(item_id, class_name, silo_name, version: 1)
+      harvest(item_id, silo_name, class_name: class_name, version: version)
     end
 
-    def for_id_and_name_with_no_class item_id, silo_name
-      where(item_id: item_id, silo_type: silo_name).first
+    def for_id_and_name_with_no_class(item_id, silo_name, version: 1)
+      harvest(item_id, silo_name, version: version)
+    end
+
+    def harvest(item_id, silo_name, class_name: nil, version: 1)
+      query = {
+        item_class: class_name,
+        item_id: item_id,
+        silo_type: silo_name,
+        version: version
+      }
+
+      query = query.delete_if { |field, param| param.nil? }
+
+      where(query).first
     end
   end
 end
+
