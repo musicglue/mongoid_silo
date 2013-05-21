@@ -1,17 +1,17 @@
 require 'sidekiq'
 
 module MongoidSilo
-
   class UpdateSiloWorker
     include Sidekiq::Worker
 
     def perform(item_id, item_class, name, mode="save", generator=nil, callback=nil)
-      @item_id, @item_class, @generator, @callback = item_id, item_class, generator, callback
+      @item_class, @generator, @callback = item_class, generator, callback
+      @item_id = item_id.kind_of?(String) ? item_id : item_id["$oid"]
       mode.to_s == "save" ? update_silo(name, generator) : destroy_silo(name)
     end
 
-
     private
+
     def update_silo name, generator
       @item = item_class.send(:find, @item_id)
       @silo = Silo.where(item_class: @item_class, item_id: @item_id, silo_type: name).first
@@ -45,7 +45,6 @@ module MongoidSilo
       cl
     end
 
-
     def generator_class
       cl = nil
       @generator.split("::").inject(nil) do |parent, identifier|
@@ -54,7 +53,5 @@ module MongoidSilo
       end
       cl
     end
-
   end
-    
 end
