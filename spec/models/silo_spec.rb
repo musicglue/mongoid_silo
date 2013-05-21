@@ -12,6 +12,10 @@ describe Silo do
       Silo.count.should eq(1)
     end
 
+    it "assigns a default version of 1" do
+      Silo.first.version.should eq(1)
+    end
+
     it "should contain the name of the project" do
       @project.default_silo.should eq({"name" => @project.name})
     end
