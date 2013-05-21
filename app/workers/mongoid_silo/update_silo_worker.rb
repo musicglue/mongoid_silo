@@ -1,60 +1,77 @@
 require 'sidekiq'
 
 module MongoidSilo
+  refine String do
+    def constantize
+      Object.module_eval("::#{foo}", __FILE__, __LINE__)
+    end
+  end
 
   class UpdateSiloWorker
     include Sidekiq::Worker
 
-    def perform(item_id, item_class, name, mode="save", generator=nil, callback=nil)
-      @item_id, @item_class, @generator, @callback = item_id, item_class, generator, callback
-      mode.to_s == "save" ? update_silo(name, generator) : destroy_silo(name)
-    end
+    attr_reader :generator, :klass, :id, :name, :callback
 
+    def perform(id, klass, name, mode = :save, generator = nil, callback = nil)
+      @id        = id.kind_of?(String) ? id : id["$oid"]
+      @klass     = klass.constantize
+      @generator = generator ? generator.constantize : nil
+      @callback  = callback
+      @name      = name
+
+      __send__(mode.to_sym)
+    end
 
     private
-    def update_silo name, generator
-      @item = item_class.send(:find, @item_id)
-      @silo = Silo.where(item_class: @item_class, item_id: @item_id, silo_type: name).first
-      @content = generator_class.send(:new, @item).generate
-      if @silo
-        @silo.set(:bag, @content)
+
+    def save
+      if generator.versioned_generators.empty?
+        save_unversioned_silo
       else
-        @silo = Silo.create(item_class: @item_class, item_id: @item_id, bag: @content, silo_type: name)
+        save_versioned_silo
       end
-      unless @callback.nil? || @callback == ""
-        @item.__send__(@callback, :updated)
+
+      call_callback(:updated)
+    end
+
+    def save_unversioned_silo
+      content = generator.send(:new, item).generate
+
+      save_silo_content(content, version: 1)
+    end
+
+    def save_versioned_silo
+      generator.versioned_generators.each do |version, p|
+        content = generator.send(:new, item).instance_eval(&p)
+        save_silo_content(content, version: version)
       end
     end
 
-    def destroy_silo name
-      @silo = Silo.where(item_class: @item_class, item_id: @item_id, silo_type: name).first
-      if @silo
-        @silo.destroy
-      end
-      unless @callback.nil? || @callback == ""
-        @item.__send__(@callback, :destroyed)
+    def save_silo_content(content, version: 1)
+      if silo = Silo.where(item_class: klass, item_id: id, silo_type: name, version: version).first
+        silo.set(:bag, content)
+      else
+        silo = Silo.create(item_class: klass, item_id: id, bag: content, silo_type: name, version: version)
       end
     end
 
-    def item_class
-      cl = nil
-      @item_class.split("::").inject(nil) do |parent, identifier|
-        parent ||= Kernel
-        cl = parent.const_get(identifier)
+    def destroy
+      if silo = Silo.where(item_class: klass, item_id: id, silo_type: name).all
+        silo.map(&:destroy)
       end
-      cl
+
+      call_callback(:destroyed)
     end
 
-
-    def generator_class
-      cl = nil
-      @generator.split("::").inject(nil) do |parent, identifier|
-        parent ||= Kernel
-        cl = parent.const_get(identifier)
+    def call_callback(event)
+      if !callback.to_s.empty?
+        item.__send__(callback, :destroyed)
       end
-      cl
     end
 
+    def item
+      @item ||= klass.send(:find, id)
+    end
   end
-    
 end
+

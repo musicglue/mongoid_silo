@@ -8,6 +8,7 @@ class Silo
   field :item_id, type: String
   field :silo_type, type: String
   field :bag, type: Hash
+  field :version, type: Integer, default: 1
 
   index item_class: 1
   index item_id: 1
