@@ -3,50 +3,56 @@ require 'sidekiq'
 module MongoidSilo
   refine String do
     def constantize
-      Object.module_eval(":#{foo}", __FILE__, __LINE__)
+      Object.module_eval("::#{foo}", __FILE__, __LINE__)
     end
   end
 
   class UpdateSiloWorker
     include Sidekiq::Worker
 
-    def perform(item_id, item_class, name, mode="save", generator=nil, callback=nil)
-      @item_class = item_class.constantize
-      @generator  = generator ? generator.constantize : nil
-      @callback   = callback
-      @item_id    = item_id.kind_of?(String) ? item_id : item_id["$oid"]
+    attr_reader :generator, :klass, :id, :name, :callback
 
-      mode.to_s == "save" ? update_silo(name, generator) : destroy_silo(name)
+    def perform(id, klass, name, mode = :save, generator = nil, callback = nil)
+      @id        = id.kind_of?(String) ? id : id["$oid"]
+      @klass     = klass.constantize
+      @generator = generator ? generator.constantize : nil
+      @callback  = callback
+      @name      = name
+
+      __send__(mode.to_sym)
     end
 
     private
 
-    def update_silo name, generator
-      @item = @item_class.send(:find, @item_id)
-      @silo = Silo.where(item_class: @item_class, item_id: @item_id, silo_type: name).first
-      @content = @generator.send(:new, @item).generate
+    def save
+      content = generator.send(:new, item).generate
 
-      if @silo
-        @silo.set(:bag, @content)
+      if silo = Silo.where(item_class: klass, item_id: id, silo_type: name).first
+        silo.set(:bag, content)
       else
-        @silo = Silo.create(item_class: @item_class, item_id: @item_id, bag: @content, silo_type: name)
+        silo = Silo.create(item_class: klass, item_id: id, bag: content, silo_type: name)
       end
 
-      unless @callback.nil? || @callback == ""
-        @item.__send__(@callback, :updated)
+      call_callback(:updated)
+    end
+
+    def destroy
+      if silo = Silo.where(item_class: klass, item_id: id, silo_type: name).first
+        silo.destroy
+      end
+
+      call_callback(:destroyed)
+    end
+
+    def call_callback(event)
+      if !callback.to_s.empty?
+        item.__send__(callback, :destroyed)
       end
     end
 
-    def destroy_silo name
-      @silo = Silo.where(item_class: @item_class, item_id: @item_id, silo_type: name).first
-
-      if @silo
-        @silo.destroy
-      end
-
-      unless @callback.nil? || @callback == ""
-        @item.__send__(@callback, :destroyed)
-      end
+    def item
+      @item ||= klass.send(:find, id)
     end
   end
 end
+
