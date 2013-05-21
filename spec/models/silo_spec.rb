@@ -57,6 +57,26 @@ describe Silo do
       @project.destroy
       Silo.count.should eq(0)
     end
+
+    describe "#for_id_and_class_with_name" do
+      it "supports querying specific versions" do
+        args = [@project.id.to_s, @project.class.name, "foobar", version: 2]
+
+        Silo.for_id_and_class_with_name(*args).bag.should == {
+          "foo" => "baz"
+        }
+      end
+    end
+
+    describe "#for_id_and_name_with_no_class" do
+      it "supports querying specific versions" do
+        args = [@project.id.to_s, "foobar", version: 2]
+
+        Silo.for_id_and_name_with_no_class(*args).bag.should == {
+          "foo" => "baz"
+        }
+      end
+    end
   end
 
   context 'Direct finders and methods:' do
