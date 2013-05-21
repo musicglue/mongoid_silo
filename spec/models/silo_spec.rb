@@ -31,6 +31,34 @@ describe Silo do
     end
   end
 
+  context 'versioned silo' do
+    before do
+      @project = VersionedProject.create
+    end
+
+    it "should persist a Silo" do
+      @project.should be_persisted
+      Silo.count.should eq(2)
+    end
+
+    it "assigns the correct version to the generated silos" do
+      Silo.all.map(&:version).should == [1, 2]
+    end
+
+    it "assigns the correct attributes to the first silo" do
+      Silo.where(version: 1).first.bag.should == { "foo" => "bar" }
+    end
+
+    it "assigns the correct attributes to the second silo" do
+      Silo.where(version: 2).first.bag.should == { "foo" => "baz" }
+    end
+
+    it "should delete the silos if the project is deleted" do
+      @project.destroy
+      Silo.count.should eq(0)
+    end
+  end
+
   context 'Direct finders and methods:' do
     before do
       @project1 = create(:project)
