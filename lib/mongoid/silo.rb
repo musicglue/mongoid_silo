@@ -25,9 +25,8 @@ module Mongoid
         end
       end
 
-
-
       protected
+
       def setup_own_silo name, opts
         define_method "#{name}_silo" do
           from_silo name
@@ -54,9 +53,8 @@ module Mongoid
           arr << out
         end
 
-
         registry.each do |key|
-          key[:class_name].classify.constantize.class_eval <<-EOS, __FILE__, __LINE__+1
+          key[:class_name].classify.constantize.class_eval <<-RUBY, __FILE__, __LINE__+1
             set_callback :save, :after do
               ident = key[:foreign_key].to_sym
               MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(ident), "#{key[:parent_class]}", "#{key[:silo_name]}", :save, "#{key[:generator]}", "#{key[:callback]}")
@@ -66,7 +64,7 @@ module Mongoid
               ident = key[:foreign_key].to_sym
               MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(ident), "#{key[:parent_class]}", "#{key[:silo_name]}", :destroy, "#{key[:callback]}")
             end
-          EOS
+          RUBY
         end
       end
     end
