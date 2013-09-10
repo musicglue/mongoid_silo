@@ -62,7 +62,7 @@ module Mongoid
 
             set_callback :destroy, :after do
               ident = key[:foreign_key].to_sym
-              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(ident), "#{key[:parent_class]}", "#{key[:silo_name]}", :destroy, "#{key[:callback]}")
+              MongoidSilo::UpdateSiloWorker.perform_async(self.__send__(ident), "#{key[:parent_class]}", "#{key[:silo_name]}", :save, "#{key[:generator]}", "#{key[:callback]}")
             end
           RUBY
         end
