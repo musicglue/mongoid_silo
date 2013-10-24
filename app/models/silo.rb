@@ -10,8 +10,7 @@ class Silo
   field :bag, type: Hash
   field :version, type: Integer, default: 1
 
-  index item_class: 1
-  index item_id: 1
+  index({ item_id: 1, silo_type: 1, version: 1 }, { unique: true })
   index silo_type: 1
 
   def to_json
