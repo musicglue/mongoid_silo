@@ -13,6 +13,7 @@ module MongoidSilo
     attr_reader :generator, :klass, :id, :name, :callback
 
     def perform(id, klass, name, mode = :save, generator = nil, callback = nil)
+      return if id.nil?
       @id        = id.kind_of?(String) ? id : id["$oid"]
       @klass     = klass.constantize
       @generator = generator ? generator.constantize : nil
