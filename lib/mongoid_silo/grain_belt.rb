@@ -28,7 +28,7 @@ module MongoidSilo
     end
 
     def method_missing(meth, *args)
-      object.send(meth)
+      object.send(meth, *args)
     end
 
     def generate
