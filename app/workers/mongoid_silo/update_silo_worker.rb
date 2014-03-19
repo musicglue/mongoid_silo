@@ -17,7 +17,7 @@ module MongoidSilo
       @silo = Silo.where(item_class: @item_class, item_id: @item_id, silo_type: name).first
       @content = generator_class.send(:new, @item).generate
       if @silo
-        @silo.set(:bag, @content)
+        @silo.set(bag: @content)
       else
         @silo = Silo.create(item_class: @item_class, item_id: @item_id, bag: @content, silo_type: name)
       end
