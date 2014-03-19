@@ -7,7 +7,7 @@ class Silo
   field :item_class, type: String
   field :item_id, type: String
   field :silo_type, type: String
-  field :bag, type: Hash
+  field :bag
   field :version, type: Integer, default: 1
 
   index({ item_id: 1, silo_type: 1, version: 1 }, { unique: true })
