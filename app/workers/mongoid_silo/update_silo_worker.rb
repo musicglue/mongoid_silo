@@ -50,7 +50,7 @@ module MongoidSilo
 
     def save_silo_content(content, version: 1)
       if silo = Silo.where(item_class: klass, item_id: id, silo_type: name, version: version).first
-        silo.set(:bag, content)
+        silo.set(bag: content)
       else
         silo = Silo.create(item_class: klass, item_id: id, bag: content, silo_type: name, version: version)
       end
@@ -71,7 +71,7 @@ module MongoidSilo
     end
 
     def item
-      @item ||= klass.send(:find, id)
+      @item ||= klass.find(id)
     end
   end
 end
