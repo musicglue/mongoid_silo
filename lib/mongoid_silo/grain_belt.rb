@@ -27,8 +27,16 @@ module MongoidSilo
       @object = object
     end
 
-    def method_missing(meth, *args)
-      object.send(meth, *args)
+    def method_missing(meth, *args, &block)
+      if object.respond_to?(meth)
+        object.send(meth, *args, &block)
+      else
+        super
+      end
+    end
+    
+    def respond_to?(meth)
+      object.respond_to?(meth) ? true : super
     end
 
     def generate
