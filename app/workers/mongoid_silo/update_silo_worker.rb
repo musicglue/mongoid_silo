@@ -71,8 +71,7 @@ module MongoidSilo
     end
 
     def item
-      @item ||= klass.find(id)
+      @item ||= klass.find(id) || raise(Mongoid::Errors::DocumentNotFound.new(klass, id))
     end
   end
 end
-
