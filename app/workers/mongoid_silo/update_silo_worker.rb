@@ -20,10 +20,28 @@ module MongoidSilo
       @callback  = callback
       @name      = name
 
-      __send__(mode.to_sym)
+      Sidekiq::Logging.with_context("#{@klass} #{@id} #{@generator}") do
+        begin
+          start = Time.now
+          logger.info { "#{mode} start" }
+          __send__(mode.to_sym)
+          logger.info { "#{mode} done: #{elapsed(start)} sec" }
+        rescue Exception
+          logger.info { "#{mode} fail: #{elapsed(start)} sec" }
+          raise
+        end
+      end
     end
 
     private
+
+    def elapsed(start)
+      (Time.now - start).to_f.round(3)
+    end
+
+    def logger
+      Sidekiq.logger
+    end
 
     def save
       if generator.versioned_generators.empty?
