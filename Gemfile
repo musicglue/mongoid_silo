@@ -6,7 +6,7 @@ gemspec
 group :test do
   gem 'rspec'
   gem 'factory_girl'
-  gem 'database_cleaner'
+  gem 'database_cleaner', '< 1.4'
   gem 'fuubar'
   gem 'ffaker'
   gem 'spork'

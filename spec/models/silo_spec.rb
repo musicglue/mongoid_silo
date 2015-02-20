@@ -108,7 +108,7 @@ describe Silo do
 
     it "should serialize to JSON correctly" do
       found = Silo.for_id_and_class_with_name(@project1.id.to_s, @project1.class.to_s, "default")
-      MultiJson.decode("#{found.to_json}").should be_a(Hash)
+      ActiveSupport::JSON.decode("#{found.to_json}").should be_a(Hash)
     end
   end
 

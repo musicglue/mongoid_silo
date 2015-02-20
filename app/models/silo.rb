@@ -13,7 +13,7 @@ class Silo
   index({ silo_type: 1, item_id: 1, version: 1 }, { background: true, unique: true })
 
   def to_json
-    @json ||= MultiJson.encode bag
+    @json ||= ActiveSupport::JSON.encode bag
   end
 
   class << self
