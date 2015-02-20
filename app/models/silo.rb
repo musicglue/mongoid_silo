@@ -10,8 +10,7 @@ class Silo
   field :bag
   field :version, type: Integer, default: 1
 
-  index({ item_id: 1, silo_type: 1, version: 1 }, { unique: true })
-  index silo_type: 1
+  index({ silo_type: 1, item_id: 1, version: 1 }, { background: true, unique: true })
 
   def to_json
     @json ||= MultiJson.encode bag
