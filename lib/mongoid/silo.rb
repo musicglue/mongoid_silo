@@ -84,7 +84,12 @@ module Mongoid
         @bag = {}
         @bag[name] ||= begin
           silo = ::Silo.where(item_class: self.class.to_s, item_id: self.id.to_s, silo_type: name).first
-          silo.bag
+
+          if silo
+            silo.bag
+          else
+            {}
+          end
         rescue Mongoid::Errors::DocumentNotFound
           {}
         end
